@@ -1,0 +1,64 @@
+CREATE familyTree 10 string string int bool string double bool int bool bool fname lname age like? haircolor rate livefar children cooks old
+INSERT INTO familyTree 18 ROWS
+tim vanhaitsma 53 true grey 8.7 true 1 true true
+kristin underhill 51 true red 8.7 true 1 true true
+rose vanhaitsma 77 true white 8.7 true 3 true true
+john vanhaitsma 80 true white 8.7 true 3 true true
+vicki underhill 70 true grey 8.7 true 2 true true
+larry underhill 100 true black 8.7 true 2 true true
+karen vanhaitsma 50 true blonde 8.7 true 2 true true
+todd vanhaitsma 50 true blonde 8.5 true 2 true true
+lisa vanhaitsma 55 true blonde 8.7 true 2 true true
+jeff vanhaitsma 49 true grey 8.5 true 2 true true
+spencer underhill 50 false grey 8.5 true 2 true true
+sarah underhill 49 false grey 8.5 true 2 true true
+will underhill 16 false brown 8.5 true 0 true false
+emma vanhaitsma 18 true blonde 9.2 true 0 true false
+jessa vanhaitsma 23 true brown 8.3  true 0 true false
+kassidy vanhaitsma 20 true blonde 8.3 true 0 true false
+tyler vanhaitsma 20 true brown 8.3 true 0 true false
+jade vanhaitsma 20 true black 1 false 0 true false
+GENERATE FOR familyTree bst INDEX ON cooks
+PRINT FROM familyTree 10 fname lname age like? haircolor rate livefar children cooks old ALL
+GENERATE FOR familyTree bst INDEX ON fname
+GENERATE FOR familyTree bst INDEX ON age
+PRINT FROM familyTree 10 fname lname age like? haircolor rate livefar children cooks old ALL
+GENERATE FOR familyTree bst INDEX ON rate
+GENERATE FOR familyTree bst INDEX ON livefar
+PRINT FROM familyTree 10 fname lname age like? haircolor rate livefar children cooks old ALL
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar = true
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar < true
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar > true
+DELETE FROM familyTree WHERE age > 25
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar = true
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar < true
+PRINT FROM familyTree 3 lname like? livefar WHERE livefar > true
+CREATE friends 10 string string int bool string double bool int bool bool fname lname age like? haircolor rate livefar children cooks old
+INSERT INTO friends 12 ROWS
+sidney streetman 19 true brown 9.2 false 0 true false
+hannah mccomas 20 true blonde 9.2 false 0 true false
+abby green 19 true blonde 9.2 false 0 true false
+ashley mitchell 20 true brown 8.3 false 0 true false
+alex kersten 20 true blonde 8.3 false 0 true false
+kaia denhof 20 true red 9.2 true 0 true false
+kelly linart 20 true blonde 8.3 false 0 true false
+amy lynch 20 true black 9.2 true 0 true false
+jamal hassunizadeh 19 true brown 9.2 false 0 true false
+gabe khouri 20 true black 9.2 false 0 true false
+gabe giddings 20 true blonde 9.2 false 0 true false
+chloe hartman 19 true brown 9.2 false 0 true false
+GENERATE FOR familyTree bst INDEX ON rate
+JOIN familyTree AND friends WHERE like? = like? AND PRINT 3 fname 1 lname 2 rate 2
+GENERATE FOR friends bst INDEX ON lname
+GENERATE FOR familyTree bst INDEX ON lname
+JOIN familyTree AND friends WHERE lname = lname AND PRINT 3 fname 1 lname 2 rate 2
+JOIN friends AND familyTree WHERE lname = lname AND PRINT 3 fname 1 lname 2 rate 2
+PRINT FROM familyTree 3 lname like? livefar WHERE lname = vanhaitsma
+PRINT FROM familyTree 3 lname like? livefar WHERE lname < vanhaitsma
+PRINT FROM familyTree 3 lname like? livefar WHERE lname > vanhaitsma
+JOIN familyTree AND familyTree WHERE lname = lname AND PRINT 3 fname 1 lname 2 rate 2
+QUIT
+
+
+
+

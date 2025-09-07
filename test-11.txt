@@ -1,0 +1,49 @@
+#Awesome Spec Example!
+CREATE 281class 3 string string bool emotion person Y/N
+INSERT INTO 281class 8 ROWS
+happy Darden true
+stressed students false
+busy office_hours true
+stressed students true
+stressed Paoletti true
+happy Darden true
+happy Sith true
+victorious Sith true
+PRINT FROM 281class 2 name home ALL
+PRINT FROM 281class 3 name state home WHERE emotion = stressed
+PRINT FROM 281class 3 name emotion person WHERE emotion = stressed
+CREATE emotions 3 string string string morning day night
+INSERT INTO emotions 6 ROWS
+stressed stressed stressed
+happy stressed stressed
+stressed stressed stressed
+sad happy mad
+stressed happy stressed
+sad stressed mad
+JOIN 281class and emotions WHERE emotion = day AND PRINT 3 day 2 per 1 emotion 1
+JOIN 281class and emo WHERE emotion = day AND PRINT 3 day 2 person 1 emotion 1
+JOIN 281class and emotions WHERE emoon = day AND PRINT 3 day 2 per 1 emotion 1
+JOIN 281class and emotions WHERE emotion = night AND PRINT 3 day 2 person 1 emotion 1
+JOIN 281class and emotions WHERE emotion < night AND PRINT 3 day 2 person 1 emotion 1
+PRINT FROM 281class 2 emotion person WHERE emoton = stressed
+INSERT INTO emotions 6 ROWS
+stressed stressed stressed
+sad happy mad
+stressed happy stressed
+stressed stressed stressed
+sad happy mad
+stressed happy stressed
+DELETE FROM emotions WHERE day = stressed
+JOIN 281class and emotions WHERE emotion = day AND PRINT 3 day 2 per 1 emotion 1
+JOIN 281class and emotions WHERE emotion = night AND PRINT 3 day 2 person 1 emotion 1
+JOIN 281class and emotions WHERE emotion > night AND PRINT 3 day 2 person 1 emotion 1
+JOIN 281class and emotions WHERE emotion < night AND PRINT 3 day 2 person 1 emotion 1
+INSERT INTO emotions 4 ROWS
+stressed stressed stressed
+stressed happy stressed
+stressed stressed stressed
+stressed happy stressed
+JOIN 281class and emotions WHERE emotion = day AND PRINT 3 day 2 per 1 emotion 1
+JOIN 281class and 281class WHERE emotion = emotion AND PRINT 3 emotion 1 emotion 2 person 1 
+JOIN 281class and 281class WHERE emotion < emotion AND PRINT 3 emotion 1 emotion 2 person 1 
+QUIT

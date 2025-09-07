@@ -1,0 +1,47 @@
+CREATE 281class 4 string string bool int emotion person Y/N age
+INSERT INTO 281class 8 ROWS
+happy Darden true 2
+stressed students false 3
+busy office_hours true 4
+stressed students true 5
+stressed Paoletti true 8
+happy Darden true 0
+happy Sith true 5
+victorious Sith true 4
+CREATE 280class 3 string string bool emotion person name
+INSERT INTO 280class 7 ROWS
+stressed jade true
+happy jamal true
+annoyed gabe false
+happy gabe true
+happy jade false
+stressed gabe true
+stressed jamal false
+GENERATE FOR 280class bst INDEX ON name
+PRINT FROM 280class 2 emotion person WHERE name > true
+PRINT FROM 280class 2 emotion person WHERE name = true
+PRINT FROM 280class 2 emotion person WHERE name < true
+JOIN 280class AND 281class WHERE name = Y/N AND PRINT 3 age 2 name 1 person 1
+GENERATE FOR 280class hash INDEX ON name 
+PRINT FROM 280class 2 emotion person WHERE name > true
+PRINT FROM 280class 2 emotion person WHERE name = true
+PRINT FROM 280class 2 emotion person WHERE name < true
+JOIN 280class AND 281class WHERE name = Y/N AND PRINT 3 age 2 name 1 person 1
+DELETE FROM 280class WHERE name < false
+INSERT INTO 280class 3 ROWS
+stressed jade false
+happy jamal false
+annoyed gabe false
+PRINT FROM 280class 2 emotion person WHERE name > true
+PRINT FROM 280class 2 emotion person WHERE name = true
+PRINT FROM 280class 2 emotion person WHERE name < true
+GENERATE FOR 280class bst INDEX ON name
+INSERT INTO 280class 3 ROWS
+upbeat jade false
+angry jamal true
+annoyed jamal true
+DELETE FROM 280class WHERE name = false
+PRINT FROM 280class 2 emotion person WHERE name > true
+PRINT FROM 280class 2 emotion person WHERE name = true
+PRINT FROM 280class 2 emotion person WHERE name < true
+QUIT

@@ -1,0 +1,58 @@
+# new test case
+CREATE 281class 5 string string bool int double emotion person Y/N age height
+INSERT INTO 281class 10 ROWS
+happy Darden true 2 2.2
+stressed students false 3 3.3
+busy office_hours true 4 4.4
+stressed students true 5 5.5
+stressed Paoletti true 8 8.8
+happy Darden true 0 1.1
+happy Sith true 5 5.5
+victorious Darden true 5 6.6
+busy Sith false 4 7.7
+victorious Paoletti true 10 11.11
+CREATE 281class 5 string string bool int double emotion person Y/N age height
+CREATE childclass 3 int double bool grade height man
+INSERT INDEX childclass 10 ROWS
+45 60.4 true
+33 90.4 true
+33 45.9 false
+100 5.5 true
+9 50 false
+25 35 true
+44 35 true
+42 55.4 false
+97 88.7 true
+25 2.2 false
+GENERATE FOR 281class bst INDEX ON emotion
+GENERATE FOR 281class bst INDEX ON age
+PRINT FROM 281class 2 emotion person WHERE emotion = stressed
+PRINT FROM 281class 2 emotion person WHERE age > 34
+GENERATE FOR 281class hash INDEX ON age
+PRINT FROM 281class 2 emotion person WHERE age > 34
+GENERATE FOR childclass bst INDEX ON grade
+GENERATE FOR 281class bst INDEX ON emotion
+PRINT FROM 281class 2 emotion person WHERE emotion = stressed
+PRINT FROM 281class 2 emotion person WHERE emotion = stressed
+GENERATE FOR 281class bst INDEX ON emotion
+JOIN 281class AND childclass WHERE height > height AND PRINT 3 grade 2 height 1 height 2
+JOIN childclass AND 281class WHERE height < height AND PRINT 3 grade 1 height 1 height 2
+JOIN 281class AND childclass WHERE height < height AND PRINT 3 grade 2 height 1 height 2
+JOIN childclass AND 281class WHERE height > height AND PRINT 3 grade 1 height 1 height 2
+DELETE FROM 281class WHERE emotion = stressed
+JOIN childclass AND 281class WHERE emotion = stressed AND PRINT 3 grade 1 height 1 height 2
+GENERATE FOR childclass bst INDEX ON height
+JOIN 281class AND childclass WHERE height > height AND PRINT 3 grade 2 height 1 height 2
+JOIN childclass AND 281class WHERE height > height AND PRINT 3 grade 1 height 1 height 2
+JOIN 281class AND childclass WHERE height < height AND PRINT 3 grade 2 height 1 height 2
+JOIN 281class AND childclass WHERE height = height AND PRINT 3 grade 2 height 1 height 2
+PRINT FROM childclass 2 grade height WHERE grade > 5
+QUIT
+
+
+
+
+
+
+
+

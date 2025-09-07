@@ -1,0 +1,61 @@
+CREATE cities 5 string string int double bool name state population area is_capital?
+INSERT INTO cities 7 ROWS
+Ann_Arbor Michigan 120782 28.69 false
+Lansing Michigan 116020 36.68 true
+Miami Florida 453579 55.25 false
+San_Francisco California 864816 46.87 false
+Albany New_York 98111 21.93 true
+Chicago Illinois 2705000 234 false
+St_Louis Missouri 315685 65.98 false
+PRINT FROM cities 2 name state ALL
+PRINT FROM cities 3 name state area WHERE area < 50
+PRINT FROM cities 3 name state area WHERE area = 55.25
+PRINT FROM cities 3 name state area WHERE area > 50
+PRINT FROM cities 3 name state WHERE Name < 50
+DELETE FROM cities WHERE area < 50 
+DELETE FROM cities WHERE area = 55.25 
+DELETE FROM cities WHERE area > 50
+INSERT INTO cities 7 ROWS
+Ann_Arbor Michigan 120782 28.69 false
+Lansing Michigan 116020 36.68 true
+Miami Florida 453579 55.25 false
+San_Francisco California 864816 46.87 false
+Albany New_York 98111 21.93 true
+Chicago Illinois 2705000 234 false
+St_Louis Missouri 315685 65.98 false 
+DELETE FROM cities WHERE Name > 50 
+DELETE FROM cities WHERE is_capital = true 
+DELETE FROM cities WHERE is_capital = false
+INSERT INTO cities 7 ROWS
+Ann_Arbor Michigan 120782 28.69 false
+Lansing Michigan 116020 36.68 true
+Miami Florida 453579 55.25 false
+San_Francisco California 864816 46.87 false
+Albany New_York 98111 21.93 true
+Chicago Illinois 2705000 234 false
+St_Louis Missouri 315685 65.98 false
+PRINT FROM cities 4 name state area is_capital ALL
+PRINT FROM cities 3 name state area WHERE is_capital = false
+PRINT FROM cities 3 name state area WHERE is_capital = true
+PRINT FROM cities 3 name state area WHERE name < Chicago
+PRINT FROM cities 3 name state area WHERE name = Chicago
+PRINT FROM cities 3 name state area WHERE name > Chicago
+DELETE FROM cities WHERE name < Chicago
+DELETE FROM cities WHERE name = Chicago
+DELETE FROM cities WHERE name > Chicago
+INSERT INTO cities 7 ROWS
+Ann_Arbor Michigan 120782 28.69 false
+Lansing Michigan 116020 36.68 true
+Miami Florida 453579 55.25 false
+San_Francisco California 864816 46.87 false
+Albany New_York 98111 21.93 true
+Chicago Illinois 2705000 234 false
+St_Louis Missouri 315685 65.98 false
+PRINT FROM cities 3 name state area WHERE population < 50000
+PRINT FROM cities 3 name state area WHERE name = 120782
+PRINT FROM cities 3 name state area WHERE name > 50000
+DELETE FROM cities WHERE population < 50000
+DELETE FROM cities WHERE population = 120782
+DELETE FROM cities WHERE population > 50000
+REMOVE cities
+QUIT

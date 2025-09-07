@@ -1,0 +1,39 @@
+CREATE personclass 3 int double bool age height man
+INSERT INTO personclass 6 ROWS
+45 60.4 true
+33 90.4 true
+33 45.9 false
+100 50 true
+100 50 false
+25 35 true
+CREATE childclass 3 int double bool grade height under5
+INSERT INTO childclass 6 ROWS
+1 50.4 true
+33 60 true
+3 50 false
+4 45.8 true
+100 50 false
+25 35 true
+DELETE FROM childclass WHERE height = 51
+JOIN personclass AND childclass WHERE man = under5 AND PRINT 3 grade 2 height 1 height 2
+DELETE FROM personclass WHERE age < 40
+JOIN personclass AND childclass WHERE age = grade AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE age < grade AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE age > grade AND PRINT 3 grade 2 height 1 height 2
+GENERATE FOR childclass bst INDEX ON height
+JOIN personclass AND childclass WHERE height = height AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE height < height AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE height > height AND PRINT 3 grade 2 height 1 height 2
+PRINT FROM personclass 3 age height man ALL
+PRINT FROM childclass 3 grade height under5 ALL
+DELETE FROM personclass WHERE age > 40
+JOIN personclass AND childclass WHERE man = under5 AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE age = grade AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE age < grade AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE age > grade AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE height = height AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE height < height AND PRINT 3 grade 2 height 1 height 2
+JOIN personclass AND childclass WHERE height > height AND PRINT 3 grade 2 height 1 height 2
+PRINT FROM personclass 3 age height man ALL
+PRINT FROM childclass 3 grade height under5 ALL
+QUIT

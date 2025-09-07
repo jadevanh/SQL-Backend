@@ -1,0 +1,73 @@
+CREATE familyTree 10 string string int bool string double bool int bool bool fname lname age like? haircolor rate livefar children cooks old
+INSERT INTO familyTree 18 ROWS
+tim vanhaitsma 53 true grey 8.7 true 1 true true
+kristin underhill 51 true red 8.7 true 1 true true
+rose vanhaitsma 77 true white 8.7 true 3 true true
+john vanhaitsma 80 true white 8.7 true 3 true true
+vicki underhill 70 true grey 8.7 true 2 true true
+larry underhill 100 true black 8.7 true 2 true true
+karen vanhaitsma 50 true blonde 8.7 true 2 true true
+todd vanhaitsma 50 true blonde 8.5 true 2 true true
+lisa vanhaitsma 55 true blonde 8.7 true 2 true true
+jeff vanhaitsma 49 true grey 8.5 true 2 true true
+spencer underhill 50 false grey 8.5 true 2 true true
+sarah underhill 49 false grey 8.5 true 2 true true
+will underhill 16 false brown 8.5 true 0 true false
+emma vanhaitsma 18 true blonde 9.2 true 0 true false
+jessa vanhaitsma 23 true brown 8.3  true 0 true false
+kassidy vanhaitsma 20 true blonde 8.3 true 0 true false
+tyler vanhaitsma 20 true brown 8.3 true 0 true false
+jade vanhaitsma 20 true black 1 false 0 true false
+JOIN familyTree AND familyTree WHERE like? = old AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE like? > old AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE like? < old AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+GENERATE FOR familyTree bst INDEX ON children
+JOIN familyTree AND familyTree WHERE children < age AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children = age AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children > age AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+DELETE FROM familyTree WHERE children = 2
+JOIN familyTree AND familyTree WHERE children < children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children = children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children > children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+GENERATE FOR familyTree bst INDEX ON haircolor
+CREATE friends 10 string string int bool string double bool int bool bool fname lname age like? haircolor rate livefar children cooks old
+INSERT INTO friends 12 ROWS
+sidney streetman 19 true brown 9.2 false 0 true false
+hannah mccomas 20 true blonde 9.2 false 0 true false
+abby green 19 true blonde 9.2 false 0 true false
+ashley mitchell 20 true brown 8.3 false 0 true false
+alex kersten 20 true blonde 8.3 false 0 true false
+kaia denhof 20 true red 9.2 true 0 true false
+kelly linart 20 true blonde 8.3 false 0 true false
+amy lynch 20 true black 9.2 true 0 true false
+jamal hassunizadeh 19 true brown 9.2 false 0 true false
+gabe khouri 20 true black 9.2 false 0 true false
+gabe giddings 20 true blonde 9.2 false 0 true false
+chloe hartman 19 true brown 9.2 false 0 true false
+INSERT INTO familyTree 6 ROWS
+kelly linart 20 true blonde 8.3 false 0 true false
+amy lynch 20 true black 9.2 true 0 true false
+jamal hassunizadeh 19 true brown 9.2 false 0 true false
+gabe khouri 20 true black 9.2 false 0 true false
+gabe giddings 20 true blonde 9.2 false 0 true false
+chloe hartman 19 true brown 9.2 false 0 true false
+JOIN familyTree AND familyTree WHERE children < children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children = children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN familyTree AND familyTree WHERE children > children AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+GENERATE FOR friends bst INDEX ON lname
+GENERATE FOR friends bst INDEX ON haircolor
+DELETE FROM friends WHERE like? > false
+JOIN friends AND familyTree WHERE rate > rate AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN friends AND familyTree WHERE rate = rate AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+DELETE FROM friends WHERE haircolor > brown
+JOIN friends AND familyTree WHERE haircolor > haircolor AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN friends AND familyTree WHERE haircolor = haircolor AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+DELETE FROM friends WHERE haircolor < brown
+JOIN friends AND familyTree WHERE haircolor = haircolor AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+DELETE FROM friends WHERE haircolor = brown
+JOIN friends AND familyTree WHERE haircolor > haircolor AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+JOIN friends AND familyTree WHERE haircolor = haircolor AND PRINT 10 fname 1 lname 2 age 1 like? 2 haircolor 1 rate 2 livefar 1 children 2 cooks 1 old 2
+QUIT
+
+
+
