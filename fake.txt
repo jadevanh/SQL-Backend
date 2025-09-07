@@ -1,0 +1,889 @@
+//Project Identifier: C0F4DFE8B340D81183C208F70F9D2D797908754D
+
+
+#include <getopt.h>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <vector>
+#include "xcode_redirect.hpp"
+#include <algorithm>
+#include "TableEntry.h"
+#include <unordered_map>
+#include <map>
+using namespace std;
+
+
+// less than functor
+struct LessThan {
+    TableEntry value;
+    size_t index;
+    LessThan(TableEntry val,  size_t index_in) : value(val), index(index_in)  {}
+    bool operator()(vector<TableEntry> &value2) {
+        //value 1 is the column, value 2 is the table entry from 
+        return value2[index] < value;
+    }
+}; // less than end
+// greater than functor
+class GreaterThan {
+private:
+    TableEntry value;
+    size_t index;
+    public:
+    GreaterThan(TableEntry val,  size_t index_in) : value(val), index(index_in)  {}
+    bool operator()(vector<TableEntry> &value2) {
+        //value 1 is the column, value 2 is the table entry from 
+        return value2[index] > value;
+    }
+}; // greater than end
+
+// equal to functor
+class EqualTo {
+    private:
+    TableEntry value;
+    size_t index;
+    public:
+    EqualTo(TableEntry val,  size_t index_in) : value(val), index(index_in)  {}
+    bool operator()(vector<TableEntry> &value2) {
+        //value 1 is the column, value 2 is the table entry from 
+        return value2[index] == value;
+    }
+}; // equal to end
+
+
+struct Table {
+    string tableName;
+    vector<EntryType> colType;
+    vector<string> colNames;
+    vector<vector<TableEntry>> table;
+    unordered_map<TableEntry, vector<size_t>> searchInxhash;
+    map<TableEntry, vector<size_t>> searchInxbst; 
+    string generateColName = "";
+    bool quiet = false;
+    bool hash = false;
+    bool bst = false;
+    void insertRows();
+    void print();
+    void print_where(const vector<size_t> &columnsToPrint, size_t index);
+    void printHelper (const char comparison, TableEntry value, size_t index, const vector<size_t> &colunmsToPrint);
+    template <typename T>
+    void printFunctor (T &func, const vector<size_t> &colunmsToPrint);
+    void all(vector<size_t> &cols);
+    void deleteRows();
+    void delete_where(size_t index, char comparison);
+    template <typename T>
+    void deleteFunctor(T &Func);
+    void deleteHelper(TableEntry value, char comparison, size_t index);
+    void generate(const string &type, const string &colNametoIndex, bool infunc);
+    void join(Table &tableTwo);
+    void join_where(Table &table2, size_t col1, size_t col2);
+    void createHash(size_t indexOfColinTable);
+    void createBST (size_t indexOfColinTable);
+
+};
+
+class Settings {
+    private:
+    string words  = "";
+    string commands =  ""; 
+    bool quietMode = false; 
+    unordered_map<string, Table> allTables;
+
+    public:
+    void getOptions(int argc, char * argv[]);
+    void create();
+    void quit();
+    void readCommands();
+    void printHelp();
+    void remove(string name);
+}; // end of table class
+
+
+void Settings::readCommands() {
+    do {
+        cout << "% ";
+        cin >> commands;
+        if (commands[0] == '#') {
+            getline(cin, words);
+        }
+        //creates empty 2d vector of table entries with the key name specified 
+        //also initalizeds the 2 col vectors 
+        else if (commands[0] == 'C') {
+            create();
+        }
+        else if (commands[0] == 'R') {
+            cin >> words;
+            remove(words);
+        }
+        else if (commands[0] == 'I') {
+            string junk;
+            cin >> junk >> words;
+            auto it = allTables.find(words);
+            if (it == allTables.end()) {
+                cout << "Error during INSERT: " << words 
+                << " does not name a table in the database\n";
+                getline(cin, words);
+            }
+            else {
+                allTables[words].insertRows();
+            }
+        }
+        else if (commands[0] == 'P') {
+            string junk;
+            cin >> junk >> words;
+            auto it = allTables.find(words);
+            if (it == allTables.end()) {
+                cout << "Error during PRINT: " << words 
+                     << " does not name a table in the database\n";
+                getline(cin, words);
+            } 
+            else {
+                allTables[words].print();
+            }
+        }
+        else if (commands[0] == 'D') {
+            string junk;
+            cin >> junk >> words;
+            auto it = allTables.find(words);
+            if (it == allTables.end()) {
+                cout << "Error during DELETE: " << words 
+                     << " does not name a table in the database\n";
+                getline(cin, words);
+            }
+            else {
+                allTables[words].deleteRows();
+            } 
+        }
+        else if (commands[0] == 'J') {
+            string junk = "";
+            string table1 = "";
+            string table2 = "";
+            cin >> table1 >> junk >> table2 >> junk;
+            auto it = allTables.find(table1);
+            if (it != allTables.end()) {
+                it = allTables.find(table2);
+                if (it != allTables.end()) {
+                    allTables[table1].join(allTables[table2]);
+                }
+                else {
+                    cout << "Error during JOIN: " << table2 
+                        << " does not name a table in the database\n";
+                    getline(cin, table2);
+                }
+            }
+            else {
+                cout << "Error during JOIN: " << table1 
+                        << " does not name a table in the database\n";
+                    getline(cin, table1);
+            }
+        }
+        else if (commands[0] == 'G') {
+            string junk = "";
+            cin >> junk >> words;
+            auto it = allTables.find(words);
+            if (it == allTables.end()) {
+                cout << "Error during GENERATE: " << words 
+                     << " does not name a table in the database\n";
+                getline(cin, words);
+            }
+            else {
+                string type;
+                string colNametoIndex;
+                cin >> type >> junk >> junk >> colNametoIndex;
+                auto it = find(allTables[words].colNames.begin(), allTables[words].colNames.end(), colNametoIndex);
+                if (it == allTables[words].colNames.end()) {
+                    cout << "Error during GENERATE: " <<  colNametoIndex
+                    << " does not name a column in " << words << '\n';
+                    getline(cin,colNametoIndex);
+                }
+                else {
+                    allTables[words].generate(type, colNametoIndex, false);
+                }
+            }
+        }
+        else if (commands[0] != 'Q'){
+            cout << "Error: unrecognized command\n";
+            getline(cin, words);
+        }
+        if (cin.fail()) {
+            cerr << "Error: Reading from cin has failed" << endl;
+            exit(1);
+        } // if
+    }
+    while (commands[0] != 'Q');
+    quit(); 
+}
+
+
+void Settings::getOptions(int argc, char * argv[]) {
+  // These are used with getopt_long()
+  opterr = false; // Let us handle all error output for command line options
+  int choice;
+  int index = 0;
+  option long_options[] = {
+    { "quiet", no_argument,nullptr,'q' },
+    { "help", no_argument,nullptr,'h' },
+    { nullptr, 0, nullptr, '\0' },
+  };  // long_options[]
+
+  while ((choice = getopt_long(argc, argv, "qh", long_options, &index)) != -1) {
+    switch (choice) {
+      case 'h': {
+        printHelp();
+        exit(0);
+        break;
+      }
+      case 'q': {
+        quietMode = true;
+        break;
+      }
+      default:
+        cerr << "Error: Unknown command line option" << endl;
+        exit(1);
+        break;
+    }  // switch ..choice
+  }  // while
+}  // getMode()
+
+
+void Settings::printHelp() {
+  cout  << "Usage: \'./letter\n\t[--quiet | -q]\n"                 
+        <<                    "\t[--help | -h]\n"
+        <<                    "\t< <input file>\'" << endl;
+}  // printHelp()
+
+void Settings::quit () {
+    if (!allTables.empty()) {
+        allTables.clear();
+    }
+    cout << "Thanks for being silly!\n";
+} // quit
+
+void Settings::remove (string name) {
+    auto it = allTables.find(name);
+    if (it != allTables.end()) {
+        allTables.erase(it);
+        cout << "Table " << name << " removed\n";
+    }
+    else {
+        cout << "Error during REMOVE: " << name 
+             << " does not name a table in the database\n";
+            getline(cin, words);
+    }
+} //remove
+
+void Settings::create () {
+    string type = "";
+    string nameTable = "";
+    Table newTable;
+    cin >> nameTable;
+    newTable.tableName = nameTable;
+    auto it = allTables.find(nameTable);
+    if (it != allTables.end()) {
+        cout << "Error during CREATE: Cannot create already existing table " << nameTable << "\n";
+            getline(cin, words);
+    }
+    else {
+        int numCol = 0; 
+        cin >> numCol;
+        newTable.colNames.reserve(static_cast<size_t>(numCol));
+        newTable.colType.reserve(static_cast<size_t>(numCol));
+        for (int i = 0; i < numCol; i++) {
+            cin >> type;
+            if (type[0] == 'b') {
+                newTable.colType.push_back(EntryType::Bool);
+            }
+            if (type[0] == 's') {
+                newTable.colType.push_back(EntryType::String);
+            }
+            if (type[0] == 'd') {
+                newTable.colType.push_back(EntryType::Double);
+            }
+            if (type[0] == 'i') {
+                newTable.colType.push_back(EntryType::Int);
+            }  
+        }
+        for (int i = 0; i < numCol; i++) {
+            cin >> type;
+            newTable.colNames.push_back(type);
+        }
+        newTable.quiet = quietMode;
+        allTables.insert({nameTable, newTable});
+        cout << "New table " << nameTable << " with column(s) ";
+        for (size_t i = 0; i < newTable.colNames.size(); i++) {
+            cout << newTable.colNames[i]<< " ";
+        }
+        cout << "created\n";
+    }
+} //create
+
+void Table::insertRows () {
+    string junk = "";
+    int numRows = 0;
+    cin >> numRows >> junk; 
+    int startPos = static_cast<int>(table.size());
+    size_t idx = (table.size() + static_cast<size_t>(numRows));
+    table.reserve(table.size() + static_cast<size_t>(numRows)); // how much should i reserve by?
+    size_t generateIdx = 0;
+    if (hash || bst) {
+        auto it = find(colNames.begin(), colNames.end(), generateColName);
+        generateIdx = static_cast<size_t>(it - colNames.begin());
+    }
+    for (size_t i = static_cast<size_t>(startPos); i < idx; i++) {
+        table.emplace_back();
+        table[i].reserve(colNames.size()); // how much should i reserve by?
+        for (size_t j = 0; j < colNames.size(); j++) {
+            EntryType typeOfentry = colType[j];
+            switch(typeOfentry) {
+                case EntryType::Bool:
+                    bool valueBool;
+                    cin >> valueBool;
+                    table[i].emplace_back(valueBool); //use emplace back or use [j] to access the place?
+                    break;
+                case EntryType::Double:
+                    double valueDouble;
+                    cin >> valueDouble;
+                    table[i].emplace_back(valueDouble);
+                    break;
+                case EntryType::Int:
+                    int valueInt;
+                    cin >> valueInt;
+                    table[i].emplace_back(valueInt);
+                    break;
+                case EntryType::String:
+                    string valueString;
+                    cin >> valueString;
+                    table[i].emplace_back(valueString);
+                    break;
+            }
+            if ((generateColName != "") && (j == generateIdx)) {
+                if (hash) {
+                    auto it = searchInxhash.find(table[i][j]);
+                    if (it == searchInxhash.end()) {
+                        searchInxhash.insert({table[i][j],vector<size_t>()});
+                    }
+                    searchInxhash[table[i][j]].push_back(i);
+                }
+                else if (bst) {
+                    auto it = searchInxbst.find(table[i][j]);
+                    if (it == searchInxbst.end()) {
+                        searchInxbst.insert({table[i][j],vector<size_t>()});
+                    }
+                    searchInxbst[table[i][j]].push_back(i);
+                }
+            }
+        }
+    }
+    cout << "Added " << numRows << " rows to " << tableName << " from position " 
+            << startPos << " to " << table.size() - 1 << '\n';
+} // end of insert
+
+
+void Table::print() {
+    string columnToPrint;
+    bool error = false;
+    int printNumCols = 0;
+    cin >> printNumCols;
+    vector <size_t> trackColstoPrint;
+    trackColstoPrint.reserve(static_cast<size_t>(printNumCols));
+    for (size_t i = 0; i < static_cast<size_t>(printNumCols); i++) {
+        cin >> columnToPrint;
+        auto it = find(colNames.begin(), colNames.end(), columnToPrint);
+        if (it == colNames.end()) {
+            cout << "Error during PRINT: " << columnToPrint 
+            << " does not name a column in " << tableName << '\n';
+            getline(cin, columnToPrint);
+            error = true;
+            break;
+        }
+        size_t index = static_cast<size_t>(it - colNames.begin());
+        trackColstoPrint.push_back(index);
+    } // finding colums
+    if (!error) {
+        cin >> columnToPrint;
+        if (columnToPrint[0] == 'A') {
+        if (!quiet) {
+            for (size_t i = 0; i < trackColstoPrint.size(); i++) {
+                cout << colNames[trackColstoPrint[i]] << " ";
+            }
+            cout << '\n';
+        }
+            all(trackColstoPrint);
+        } // if.. all
+        else if (columnToPrint[0] == 'W') {
+            string colNameofWhere = "";
+            cin >> colNameofWhere;
+            auto it = find(colNames.begin(), colNames.end(), colNameofWhere);
+            if (it != colNames.end()) {
+                if (!quiet) {
+                    for (size_t i = 0; i < trackColstoPrint.size(); i++) {
+                        cout << colNames[trackColstoPrint[i]] << " ";
+                    }
+                    cout << '\n';
+                }                
+                size_t indexToPrint = static_cast<size_t>(it - colNames.begin());
+                print_where(trackColstoPrint, indexToPrint);
+            } //if
+            else {
+                cout << "Error during PRINT: " << colNameofWhere 
+                << " does not name a column in " << tableName << '\n';
+                getline(cin, columnToPrint);
+            } //else
+        } //else if...where
+    }// if there is no col error
+} // end of print
+
+//PRINT FUNCTION
+void Table::all(vector<size_t> &cols) {
+    size_t printedRows = table.size();
+    if (!quiet) {
+        for (size_t i = 0; i < table.size(); i++) {
+            for (size_t j = 0; j < cols.size(); j++) {
+                cout << table[i][cols[j]] << " ";
+            }
+            cout << '\n';
+        }
+    }
+        cout << "Printed " << printedRows << " matching rows from " << tableName << '\n';
+}
+
+template <typename T>
+void Table::printFunctor (T &func, const vector<size_t> &colunmsToPrint) {
+    size_t printedRows = 0; 
+    for (size_t i = 0; i < table.size(); i++) {
+        if (func(table[i])) {
+            printedRows++;
+            if (!quiet) {
+                for (size_t j = 0; j < colunmsToPrint.size(); j++) {
+                    cout << table[i][colunmsToPrint[j]] << " ";
+                }
+                cout << '\n';
+            } 
+        }
+    }
+    cout << "Printed " << printedRows << " matching rows from " << tableName << '\n';
+}
+
+void Table::printHelper (const char comparison, TableEntry value, size_t index, const vector<size_t> &colunmsToPrint) {
+    size_t countRows = 0; 
+    if (comparison == '<') {
+        if (!searchInxbst.empty() && colNames[index] == generateColName) {
+            for (auto it = searchInxbst.begin(); it != searchInxbst.lower_bound(value); it++) {
+                for (auto& values : it->second) {
+                    countRows++;
+                    if (!quiet) {
+                        for (size_t j = 0; j < colunmsToPrint.size(); j++) {
+                            cout << table[values][colunmsToPrint[j]] << " ";
+                        }
+                        cout << '\n';
+                    } 
+                }
+            }
+            cout << "Printed " << countRows << " matching rows from " << tableName << '\n';
+        }
+        else {
+            LessThan lessEntries(value, index);
+            printFunctor(lessEntries, colunmsToPrint);
+        }
+    }
+    else if (comparison == '>') {
+        if (!searchInxbst.empty() && colNames[index] == generateColName) {
+            for (auto it = searchInxbst.upper_bound(value); it != searchInxbst.end(); it++) {
+                for (auto& values : it->second) {
+                    countRows++;
+                    if (!quiet) {
+                        for (size_t j = 0; j < colunmsToPrint.size(); j++) {
+                            cout << table[values][colunmsToPrint[j]] << " ";
+                        }
+                        cout << '\n';
+                    } 
+                }
+            }
+            cout << "Printed " << countRows << " matching rows from " << tableName << '\n';
+        }
+        else {
+            GreaterThan greaterEntries(value, index);
+            printFunctor(greaterEntries, colunmsToPrint);
+        }
+    }
+    //equals
+    else {
+        if (!searchInxhash.empty() && colNames[index] == generateColName) {
+            auto it = searchInxhash.find(value);
+            if (it != searchInxhash.end()) {
+                if (!quiet) {
+                    for (size_t k = 0; k < searchInxhash[value].size(); k++) {
+                        for (size_t j = 0; j < colunmsToPrint.size(); j++) {
+                            cout << table[searchInxhash[value][k]][colunmsToPrint[j]] << " ";
+                        }  
+                        cout << '\n'; 
+                    }
+                }
+                countRows = searchInxhash[value].size();
+            }
+            cout << "Printed " << countRows << " matching rows from " << tableName << '\n';
+        }
+        else if (!searchInxbst.empty() && colNames[index] == generateColName) {
+            auto it = searchInxbst.find(value);
+            if (it != searchInxbst.end()) {
+                if (!quiet) {
+                    for (size_t k = 0; k < searchInxbst[value].size(); k++) {
+                        for (size_t j = 0; j < colunmsToPrint.size(); j++) {
+                            cout << table[searchInxbst[value][k]][colunmsToPrint[j]] << " ";
+                        }
+                        cout << '\n';   
+                    }
+                }
+                countRows = searchInxbst[value].size();
+            }
+            cout << "Printed " << countRows << " matching rows from " << tableName << '\n';
+        }
+        else {
+            EqualTo equalEntries(value, index);
+            printFunctor(equalEntries, colunmsToPrint);
+        }
+    }
+}
+
+void Table::print_where(const vector<size_t> &columnsToPrint, size_t index) {
+    char comparison  = '\0'; 
+    cin >> comparison;
+    EntryType typeOfentry = colType[index];
+    switch(typeOfentry) {
+        case EntryType::Bool:
+            bool valueBool;
+            cin >> valueBool;
+            printHelper(comparison, TableEntry(valueBool), index, columnsToPrint);
+            break;
+        case EntryType::Double:
+            double valueDouble;
+            cin >> valueDouble;
+            printHelper(comparison, TableEntry(valueDouble), index, columnsToPrint);
+            break;
+        case EntryType::Int:
+            int valueInt;
+            cin >> valueInt;
+            printHelper(comparison, TableEntry(valueInt), index, columnsToPrint);
+            break;
+        case EntryType::String:
+            string valueString;
+            cin >> valueString;
+            printHelper(comparison, TableEntry(valueString), index, columnsToPrint);
+            break;
+    } 
+} // end fo printwhere
+
+
+//DELETE FUNCTION
+
+void Table::deleteRows() {
+    char comparison = '\0';
+    string colNameComp = "";
+    string whereCommand = "";
+
+    cin >> whereCommand >> colNameComp >> comparison;
+    auto it = find(colNames.begin(), colNames.end(), colNameComp);
+    if (it != colNames.end()) {
+        size_t index = static_cast<size_t>(it - colNames.begin());
+        delete_where(index, comparison);
+        if (generateColName != "") {
+            if (!searchInxhash.empty()) {
+                generate("h", generateColName, true);
+            }
+            else if (!searchInxbst.empty()) {
+                generate("b", generateColName, true);
+            }
+        }
+    }
+    else {
+        cout << "Error during DELETE: " << colNameComp 
+        << " does not name a column in " << tableName << '\n';
+        getline(cin, colNameComp);
+    }
+}
+template <typename T>
+void Table::deleteFunctor(T &func){
+    auto it = remove_if(table.begin(), table.end(), func);
+    size_t count = static_cast<size_t>(table.end() - it); 
+    table.erase(it, table.end());
+    cout << "Deleted " << count << " rows from " << tableName << '\n';
+}
+
+void Table::deleteHelper(TableEntry value, char comparison, size_t index) {
+    if (comparison == '<') {
+        LessThan lessEntries(value, index);
+        deleteFunctor(lessEntries);
+    }
+    else if (comparison == '>') {
+        GreaterThan greaterEntries(value, index);
+        deleteFunctor(greaterEntries);
+    }
+    //equals
+    else {
+        EqualTo equalEntries(value, index);
+        deleteFunctor(equalEntries);
+    }
+}
+
+void Table::delete_where(size_t index, char comparison) {
+    EntryType typeOfentry = colType[index];
+    switch(typeOfentry) {
+        case EntryType::Bool:
+            bool valueBool;
+            cin >> valueBool;
+            deleteHelper(TableEntry(valueBool), comparison, index);
+            break;
+        case EntryType::Double:
+            double valueDouble;
+            cin >> valueDouble;
+            deleteHelper(TableEntry(valueDouble), comparison, index);
+            break;
+        case EntryType::Int:
+            int valueInt;
+            cin >> valueInt;
+            deleteHelper(TableEntry(valueInt), comparison, index);
+            break;
+        case EntryType::String:
+            string valueString;
+            cin >> valueString;
+            deleteHelper(TableEntry(valueString), comparison, index);
+            break;
+    } 
+}
+
+// JOIN
+void Table::join(Table &tableTwo) {
+    string colName1 = "";
+    string colName2 = "";
+    string junk = "";
+    size_t colidx1 = 0; 
+    size_t colidx2 = 0;
+    cin >> colName1 >> junk >> colName2 >> junk >> junk;
+    auto it = find(colNames.begin(), colNames.end(), colName1);
+    if(it != colNames.end()) {
+        colidx1 = static_cast<size_t>(it - colNames.begin());
+        it = find(tableTwo.colNames.begin(), tableTwo.colNames.end(), colName2);
+        if (it != tableTwo.colNames.end()) {
+            colidx2 = static_cast<size_t>(it - tableTwo.colNames.begin());
+            join_where(tableTwo, colidx1, colidx2);
+        }
+        else {
+            cout << "Error during JOIN: " << colName2 
+            << " does not name a column in " << tableTwo.tableName << '\n';
+            getline(cin, colName2);
+        }
+    }
+    else {
+        cout << "Error during JOIN: " << colName1 
+        << " does not name a column in " << tableName << '\n';
+        getline(cin, colName1);
+    }
+
+    
+}
+
+
+void Table::join_where(Table &table2, size_t col1, size_t col2) {
+    string printCol = "";
+    size_t numTableFrom = 0; //table 1 or 2 that that column is from
+    size_t numToPrint = 0;
+    unordered_map<TableEntry, vector<size_t>> joinTables;
+    vector<pair<size_t, size_t>> indexesOfcolsToPrint;
+    size_t addIndex = 0;
+    bool error = false;
+    int count = 0;
+    if (table2.generateColName != table2.colNames[col2]) {
+        for (size_t i = 0; i < table2.table.size(); i++) {
+            auto it = joinTables.find(table2.table[i][col2]);
+            if (it == joinTables.end()) {
+                joinTables.insert({table2.table[i][col2],vector<size_t>()});
+            }
+            joinTables[table2.table[i][col2]].push_back(i);
+        }
+    }
+    cin >> numToPrint; // the number of cols that they want us to print
+    indexesOfcolsToPrint.reserve(numToPrint);
+    vector<string> printColsend;
+    if (quiet) {
+        printColsend.reserve(numToPrint);
+    }
+    
+    for (size_t j = 0; j < numToPrint; j++) {
+        cin >> printCol >> numTableFrom;
+        if (numTableFrom == 1) {
+            auto it = find(colNames.begin(), colNames.end(), printCol);
+            addIndex = static_cast<size_t>(it - colNames.begin());
+            if (it != colNames.end()) {
+                indexesOfcolsToPrint.push_back({addIndex, numTableFrom});
+                if (!quiet) {
+                    printColsend.push_back(printCol);
+
+                }
+            }
+            else {
+                cout << "Error during JOIN: " << printCol 
+                << " does not name a column in " << tableName << '\n';
+                getline(cin, printCol);
+                error = true;
+                break;
+            }
+        }
+        else {
+            auto it = find(table2.colNames.begin(), table2.colNames.end(), printCol);
+            addIndex = static_cast<size_t>(it - table2.colNames.begin());
+            if (it != table2.colNames.end()) {
+                indexesOfcolsToPrint.push_back({addIndex, numTableFrom});
+                if (!quiet) {
+                    printColsend.push_back(printCol);
+
+                }
+            }
+            else {
+                cout << "Error during JOIN: " << printCol 
+                << " does not name a column in " << table2.tableName << '\n';
+                getline(cin, printCol);
+                error = true;
+                break;
+            }
+        }
+    }
+
+    if (!error) {
+        if (!quiet) {
+            for (size_t i = 0; i < printColsend.size(); i++) {
+                cout << printColsend[i] << " ";
+            }  
+            cout << '\n'; 
+        }
+        for (size_t k = 0; k < table.size(); k++) {
+            if (!joinTables.empty()) {
+                auto it = joinTables.find(table[k][col1]);
+                if (it != joinTables.end()) {
+                    for (size_t m = 0; m < joinTables[table[k][col1]].size(); m++) {
+                        count++;                        
+                        if (!quiet) {
+                            for (size_t l = 0; l < indexesOfcolsToPrint.size(); l++) {
+                                if (indexesOfcolsToPrint[l].second == 1) {
+                                    cout << table[k][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                                else if (indexesOfcolsToPrint[l].second == 2) {
+                                    cout << table2.table[joinTables[table[k][col1]][m]][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                            }
+                            cout << '\n';
+                        } 
+                    }
+                }
+            }
+            else if (table2.bst) {
+                auto it = table2.searchInxbst.find(table[k][col1]);
+                if (it != table2.searchInxbst.end()) {
+                    for (size_t m = 0; m < table2.searchInxbst[table[k][col1]].size(); m++) {
+                        count++;
+                        if (!quiet) { 
+                            for (size_t l = 0; l < indexesOfcolsToPrint.size(); l++) {
+                                if (indexesOfcolsToPrint[l].second == 1) {
+                                    cout << table[k][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                                else if (indexesOfcolsToPrint[l].second == 2) {
+                                    cout << table2.table[table2.searchInxbst[table[k][col1]][m]][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                            }
+                            cout << '\n';
+                        }
+                    }
+                }
+            }
+            else if (table2.hash) {
+                auto it = table2.searchInxhash.find(table[k][col1]);
+                if (it != table2.searchInxhash.end()) {
+                    for (size_t m = 0; m < table2.searchInxhash[table[k][col1]].size(); m++) {
+                        count++;
+                        if (!quiet) {
+                            for (size_t l = 0; l < indexesOfcolsToPrint.size(); l++) {
+                                if (indexesOfcolsToPrint[l].second == 1) {
+                                    cout << table[k][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                                else if (indexesOfcolsToPrint[l].second == 2) {
+                                    cout << table2.table[table2.searchInxhash[table[k][col1]][m]][indexesOfcolsToPrint[l].first] << " "; 
+                                }
+                            }
+                            cout << '\n';
+                        }
+                    }
+                }
+            }
+        }
+        cout << "Printed " << count << " rows from joining " << tableName << " to " << table2.tableName << '\n';
+    }
+}
+
+//GENERATE
+void Table::generate (const string &type, const string &colNametoIndex, bool infunc) {
+    size_t indexOfColinTable = 0;
+    auto it = find(colNames.begin(), colNames.end(), colNametoIndex);
+    if (hash) {
+        hash = false;
+        searchInxhash.clear();
+    }
+    if (bst) {
+        bst = false;
+        searchInxbst.clear();
+    }
+    indexOfColinTable = static_cast<size_t>(it - colNames.begin());
+    generateColName = colNametoIndex;
+    if (it != colNames.end()) {
+        if (type[0] == 'h') {
+           createHash(indexOfColinTable); 
+           if (!infunc) {
+                cout << "Created hash index for table " << tableName << " on column " << colNametoIndex << ", with " << searchInxhash.size() << " distinct keys\n";
+           }
+        }
+        //BST
+        else {
+            createBST(indexOfColinTable);
+            if (!infunc) {
+                cout << "Created bst index for table " << tableName << " on column " << colNametoIndex << ", with " << searchInxbst.size() << " distinct keys\n";
+            }
+
+        }
+    } 
+}
+
+void Table::createHash (size_t indexOfColinTable) {
+    hash = true;
+    for (size_t i = 0; i < table.size(); i++) {
+        auto it = searchInxhash.find(table[i][indexOfColinTable]);
+        if (it == searchInxhash.end()) {
+            searchInxhash.insert({table[i][indexOfColinTable],vector<size_t>()});
+        }
+        searchInxhash[table[i][indexOfColinTable]].push_back(i);
+    }
+}
+
+void Table::createBST (size_t indexOfColinTable) {
+    bst = true;
+    for (size_t i = 0; i < table.size(); i++) {
+        auto it = searchInxbst.find(table[i][indexOfColinTable]);
+        if (it == searchInxbst.end()) {
+            searchInxbst.insert({table[i][indexOfColinTable],vector<size_t>()});
+        }
+        searchInxbst[table[i][indexOfColinTable]].push_back(i);
+    }
+}
+
+
+
+int main(int argc, char *argv[]) {
+    // This should be in all of your projects, speeds up I/O
+    ios_base::sync_with_stdio(false);
+    cin >> std::boolalpha;  // add these two lines
+    cout << std::boolalpha; // add these two lines
+    //so it saves in xcode
+    xcode_redirect(argc,argv);
+    Settings storeData;
+    storeData.getOptions(argc, argv);
+    storeData.readCommands();
+    return 0;
+} //...main
+
